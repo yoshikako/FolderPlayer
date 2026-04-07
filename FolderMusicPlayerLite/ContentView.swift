@@ -7,59 +7,46 @@
 //メインUI（フォルダ選択・プレイリスト）
 import SwiftUI
 import Combine
+
 struct ContentView: View {
     @EnvironmentObject var player: FolderPlayer
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
 
+            // フォルダ選択ボタン（小さめ・上品）
             Button(action: {
                 player.selectFolder()
             }) {
-                Text("Selsct Folder")
-                    .font(.system(size: 18, weight: .semibold))                
+                Text("Select Folder")
+                    .font(.system(size: 15, weight: .semibold))
             }
-//            .buttonStyle(.plain)   // ← 余計な装飾を消す
-            .buttonStyle(.bordered)  // ← これが macOS 標準の薄いグレー
-            .controlSize(.regular)   // ← 他のボタンと統一
+            .buttonStyle(.bordered)
+            .controlSize(.regular)
 
-
-            
-//            HStack(spacing: 20) {
-//                Button("⏮") { player.previous() }
-//                Button(player.isPlaying ? "❚❚" : "▶︎") { player.togglePlayPause() }
-//                Button("⏭") { player.next() }
-//            }
-
-            
-            HStack(spacing: 20) {
+            // 再生コントロール
+            HStack(spacing: 16) {
                 Button(action: { player.previous() }) {
                     Image(systemName: "backward.fill")
-                        .font(.system(size: 22))   // ← さらに少し小さく
+                        .font(.system(size: 20))
                 }
 
                 Button(action: { player.togglePlayPause() }) {
                     Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 28))   // ← 中央も控えめに
+                        .font(.system(size: 26))
                 }
 
                 Button(action: { player.next() }) {
                     Image(systemName: "forward.fill")
-                        .font(.system(size: 22))
+                        .font(.system(size: 20))
                 }
             }
 
-
-
-
-            
-           
-            
-    
-            HStack {
+            // シャッフル・リピート
+            HStack(spacing: 20) {
                 Button(action: { player.toggleShuffle() }) {
                     Image(systemName: player.isShuffle ? "shuffle.circle.fill" : "shuffle.circle")
-                        .font(.system(size: 26))
+                        .font(.system(size: 22))
                 }
 
                 Button(action: {
@@ -76,28 +63,24 @@ struct ContentView: View {
                         case .one: return "repeat.1.circle.fill"
                         }
                     }())
-                    .font(.system(size: 26))
+                    .font(.system(size: 22))
                 }
             }
-
-            
-            
-            
-            
 
             Divider()
 
             Text("Loading: \(player.currentTitle)")
-                .font(.system(size: 16, weight: .semibold))
-                .padding(.top, 4)
+                .font(.system(size: 14, weight: .medium))
+                .padding(.top, 2)
 
             Divider()
 
+            // プレイリスト
             List {
                 ForEach(Array(player.fileURLs.enumerated()), id: \.element) { index, url in
                     HStack {
                         Text(url.lastPathComponent)
-                            .font(.system(size: 14))   // ← ここで大きくする
+                            .font(.system(size: 13))
                             .foregroundColor(index == player.currentIndex ? .blue : .primary)
                         Spacer()
                     }
@@ -107,9 +90,8 @@ struct ContentView: View {
                     }
                 }
             }
-
         }
-        .padding()
-        .frame(width: 400, height: 600)
+        .padding(12)
+        .frame(width: 360, height: 480)   // ← 最適サイズ
     }
 }
