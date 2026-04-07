@@ -41,12 +41,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if window == nil {
             let contentView = ContentView().environmentObject(FolderPlayer.shared)
 
+           
+            
+            
             window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 400, height: 500),
-                styleMask: [.titled, .closable, .resizable],
+                contentRect: NSRect(x: 0, y: 0, width: 420, height: 520),
+                styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false
             )
+            
+            // ← これが重要（macOS が勝手に resizable を付けるのを防ぐ）
+            window?.styleMask.remove(.resizable)
+
+            
+            window?.minSize = NSSize(width: 420, height: 520)
+            window?.maxSize = NSSize(width: 420, height: 520)
+
+
+            
             window?.center()
             window?.title = "FolderPlayer"
             window?.contentView = NSHostingView(rootView: contentView)
