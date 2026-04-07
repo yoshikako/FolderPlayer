@@ -17,15 +17,15 @@ import AVFoundation
 import Combine
 import AppKit
 
-
-class FolderPlayer: NSObject, ObservableObject, AVAudioPlayerDelegate {
+@MainActor
+class FolderPlayer: NSObject, ObservableObject {
     static let shared = FolderPlayer()
 
     @Published var fileURLs: [URL] = []
     @Published var currentIndex: Int = 0
     @Published var currentTitle: String = ""
     @Published var isShuffle: Bool = false
-    @Published var isPlaying: Bool = false // 追加: 再生状態
+    @Published var isPlaying: Bool = false
 
     enum RepeatMode { case none, one, all }
     @Published var repeatMode: RepeatMode = .none
@@ -34,7 +34,18 @@ class FolderPlayer: NSObject, ObservableObject, AVAudioPlayerDelegate {
     var onTitleChange: ((String) -> Void)?
 
     private var originalOrder: [URL] = []
-    private var player: AVAudioPlayer?
+
+    // AVAudioEngine 版
+    private let engine = AVAudioEngine()
+    private let playerNode = AVAudioPlayerNode()
+    private var audioFile: AVAudioFile?
+
+    override init() {
+        super.init()
+        engine.attach(playerNode)
+        engine.connect(playerNode, to: engine.mainMixerNode, format: nil)
+        try? engine.start()
+    }
 
     func selectFolder() {
         let panel = NSOpenPanel()
@@ -52,7 +63,7 @@ class FolderPlayer: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     func loadFiles(in folderURL: URL) {
         let fm = FileManager.default
-        let exts = ["mp3", "m4a", "wav", "aac","flac"]
+        let exts = ["mp3", "m4a", "wav", "aac", "flac"]
 
         let files = (try? fm.contentsOfDirectory(at: folderURL, includingPropertiesForKeys: nil)) ?? []
 
@@ -72,39 +83,51 @@ class FolderPlayer: NSObject, ObservableObject, AVAudioPlayerDelegate {
         currentTitle = url.lastPathComponent
         onTitleChange?(currentTitle)
 
-        do {
-            player = try AVAudioPlayer(contentsOf: url)
-            player?.delegate = self
-            player?.play()
-            isPlaying = true
-        } catch {
-            print("play error:", error)
-            isPlaying = false
+        // 既存の再生を停止
+        playerNode.stop()
+
+        // 非同期で FLAC を読み込み（高速）
+        DispatchQueue.global().async {
+            guard let file = try? AVAudioFile(forReading: url) else { return }
+
+            DispatchQueue.main.async {
+                self.audioFile = file
+                self.startEnginePlayback()
+            }
         }
     }
 
+    private func startEnginePlayback() {
+        guard let file = audioFile else { return }
+
+        playerNode.stop()
+        playerNode.scheduleFile(file, at: nil)
+
+        if !engine.isRunning {
+            try? engine.start()
+        }
+
+        playerNode.play()
+        isPlaying = true
+    }
+
     func togglePlayPause() {
-        if player?.isPlaying == true {
-            player?.pause()
+        if playerNode.isPlaying {
+            playerNode.pause()
             isPlaying = false
         } else {
-            player?.play()
+            playerNode.play()
             isPlaying = true
         }
     }
 
     func next() {
-        if currentIndex + 1 < fileURLs.count {
-            currentIndex += 1
-        } else {
-            currentIndex = 0
-        }
+        currentIndex = (currentIndex + 1) % fileURLs.count
         playCurrent()
     }
 
     func previous() {
-        if currentIndex > 0 { currentIndex -= 1 }
-        else { currentIndex = fileURLs.count - 1 }
+        currentIndex = (currentIndex - 1 + fileURLs.count) % fileURLs.count
         playCurrent()
     }
 
@@ -123,18 +146,9 @@ class FolderPlayer: NSObject, ObservableObject, AVAudioPlayerDelegate {
             fileURLs = originalOrder
         }
 
-        if let url = player?.url,
+        if let url = audioFile?.url,
            let newIndex = fileURLs.firstIndex(of: url) {
             currentIndex = newIndex
-        }
-    }
-
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        isPlaying = false
-        switch repeatMode {
-        case .one: playCurrent()
-        case .all: next()
-        case .none: next()
         }
     }
 }
