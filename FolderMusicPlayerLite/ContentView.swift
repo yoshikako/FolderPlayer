@@ -17,9 +17,11 @@ struct ContentView: View {
                 player.selectFolder()
             }) {
                 Text("Selsct Folder")
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 18, weight: .semibold))                
             }
-            .buttonStyle(.plain)   // ← 余計な装飾を消す
+//            .buttonStyle(.plain)   // ← 余計な装飾を消す
+            .buttonStyle(.bordered)  // ← これが macOS 標準の薄いグレー
+            .controlSize(.regular)   // ← 他のボタンと統一
 
 
             
