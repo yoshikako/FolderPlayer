@@ -4,56 +4,69 @@
 //
 //  Created by 栫 義明 on 2026/04/07.
 //
-
+//メインUI（フォルダ選択・プレイリスト）
 import SwiftUI
-import SwiftData
-
+import Combine
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @EnvironmentObject var player: FolderPlayer
 
     var body: some View {
-        NavigationSplitView {
+        VStack(spacing: 16) {
+
+            Button("フォルダを選択") {
+                player.selectFolder()
+            }
+
+            HStack(spacing: 20) {
+                Button("⏮") { player.previous() }
+                Button(player.isPlaying ? "❚❚" : "▶︎") { player.togglePlayPause() }
+                Button("⏭") { player.next() }
+            }
+
+            HStack {
+                Button(action: { player.toggleShuffle() }) {
+                    Image(systemName: player.isShuffle ? "shuffle.circle.fill" : "shuffle.circle")
+                }
+
+                Button(action: {
+                    switch player.repeatMode {
+                    case .none: player.repeatMode = .all
+                    case .all: player.repeatMode = .one
+                    case .one: player.repeatMode = .none
+                    }
+                }) {
+                    Image(systemName: {
+                        switch player.repeatMode {
+                        case .none: return "repeat"
+                        case .all: return "repeat.circle.fill"
+                        case .one: return "repeat.1.circle.fill"
+                        }
+                    }())
+                }
+            }
+
+            Divider()
+
+            Text("再生中: \(player.currentTitle)")
+                .font(.headline)
+
+            Divider()
+
             List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                ForEach(Array(player.fileURLs.enumerated()), id: \.element) { index, url in
+                    HStack {
+                        Text(url.lastPathComponent)
+                            .foregroundColor(index == player.currentIndex ? .blue : .primary)
+                        Spacer()
                     }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-            .toolbar {
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        player.jump(to: index)
                     }
                 }
             }
-        } detail: {
-            Text("Select an item")
         }
+        .padding()
+        .frame(width: 400, height: 500)
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
-    }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

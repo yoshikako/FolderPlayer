@@ -4,12 +4,15 @@
 //
 //  Created by 栫 義明 on 2026/04/07.
 //
-
+//エントリーポイント
 import SwiftUI
 import SwiftData
 
 @main
 struct FolderMusicPlayerLiteApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var player = FolderPlayer()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -26,7 +29,10 @@ struct FolderMusicPlayerLiteApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(player)
         }
         .modelContainer(sharedModelContainer)
     }
 }
+
+
