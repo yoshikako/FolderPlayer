@@ -52,7 +52,7 @@ class FolderPlayer: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     func loadFiles(in folderURL: URL) {
         let fm = FileManager.default
-        let exts = ["mp3", "m4a", "wav", "aac"]
+        let exts = ["mp3", "m4a", "wav", "aac","flac"]
 
         let files = (try? fm.contentsOfDirectory(at: folderURL, includingPropertiesForKeys: nil)) ?? []
 

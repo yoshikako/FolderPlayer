@@ -16,7 +16,7 @@ struct ContentView: View {
             Button(action: {
                 player.selectFolder()
             }) {
-                Text("フォルダを選択")
+                Text("Selsct Folder")
                     .font(.system(size: 18, weight: .semibold))
             }
             .buttonStyle(.plain)   // ← 余計な装飾を消す
@@ -85,7 +85,7 @@ struct ContentView: View {
 
             Divider()
 
-            Text("再生中: \(player.currentTitle)")
+            Text("Loading: \(player.currentTitle)")
                 .font(.system(size: 16, weight: .semibold))
                 .padding(.top, 4)
 
@@ -95,7 +95,7 @@ struct ContentView: View {
                 ForEach(Array(player.fileURLs.enumerated()), id: \.element) { index, url in
                     HStack {
                         Text(url.lastPathComponent)
-                            .font(.system(size: 16))   // ← ここで大きくする
+                            .font(.system(size: 14))   // ← ここで大きくする
                             .foregroundColor(index == player.currentIndex ? .blue : .primary)
                         Spacer()
                     }
