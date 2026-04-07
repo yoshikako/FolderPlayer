@@ -28,7 +28,9 @@ struct FolderMusicPlayerLiteApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+//            ContentView()
+            EmptyView()
+
                 .environmentObject(player)
         }
         .modelContainer(sharedModelContainer)
