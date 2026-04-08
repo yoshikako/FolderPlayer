@@ -1,83 +1,83 @@
-//
-//  ContentView.swift
-//  FolderMusicPlayerLite
-//
-//  Created by 栫 義明 on 2026/04/07.
-//
-//メインUI（フォルダ選択・プレイリスト）
 import SwiftUI
 import Combine
 
 struct ContentView: View {
     @EnvironmentObject var player: FolderPlayer
-    @State private var isDraggingSlider = false
-    @State private var dragTime: Double = 0
 
     var body: some View {
         VStack(spacing: 10) {
 
-            // フォルダ選択ボタン
-            Button(action: {
-                player.selectFolder()
-            }) {
-                Text("Select Folder")
-                    .font(.system(size: 14, weight: .semibold))
+            // ① Folder ボタン（右端）＋ 下の余白を広く
+            HStack {
+                Spacer()
+                Button(action: {
+                    player.selectFolder()
+                }) {
+                    Text("Folder")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+            .padding(.bottom, 8)   // ← 間隔を広くするポイント
 
-            // 再生コントロール
-            HStack(spacing: 14) {
+            // ② 曲名を枠（窓）付きで表示
+            ZStack {
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                    .frame(height: 28)
+
+                Text(player.currentTitle)
+                    .font(.system(size: 15, weight: .semibold))
+                    .lineLimit(1)
+                    .padding(.horizontal, 6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.horizontal, 4)
+
+            // ③ スライダー（細く）
+            VStack(spacing: 2) {
+                Slider(
+                    value: Binding(
+                        get: { player.currentTime },
+                        set: { newValue in player.seek(to: newValue) }
+                    ),
+                    in: 0...max(player.duration, 1)
+                )
+                .controlSize(.mini)        // ← 細くする
+                .tint(.gray.opacity(0.8))  // ← 色も控えめに
+                .padding(.horizontal, 6)
+
+                HStack {
+                    Text(player.timeString(player.currentTime))
+                        .font(.system(size: 11))
+                    Spacer()
+                    Text(player.timeString(player.duration))
+                        .font(.system(size: 11))
+                }
+                .padding(.horizontal, 6)
+            }
+
+            // ④ 前の曲・再生/停止・次の曲（さらに間隔を狭く）
+            HStack(spacing: 12) {
                 Button(action: { player.previous() }) {
-                    Image(systemName: "backward.fill")
-                        .font(.system(size: 18))
+                    Image(systemName: "backward.end")
+                        .font(.system(size: 16))   // ← 微調整
                 }
 
                 Button(action: { player.togglePlayPause() }) {
                     Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 24))
+                        .font(.system(size: 22))   // ← 少し小さくして上品に
                 }
 
                 Button(action: { player.next() }) {
-                    Image(systemName: "forward.fill")
-                        .font(.system(size: 18))
+                    Image(systemName: "forward.end")
+                        .font(.system(size: 16))   // ← 微調整
                 }
             }
+            .padding(.top, -2)   // ← スライダーとの距離をさらに縮める
 
-            // ★★★ 再生位置スライダー ★★★
-            Slider(
-                value: Binding(
-                    get: {
-                        isDraggingSlider ? dragTime : player.currentTime
-                    },
-                    set: { newValue in
-                        dragTime = newValue
-                    }
-                ),
-                in: 0...max(player.duration, 1),
-                onEditingChanged: { editing in
-                    if editing {
-                        isDraggingSlider = true
-                        dragTime = player.currentTime
-                    } else {
-                        player.seek(to: dragTime)
-                        isDraggingSlider = false
-                    }
-                }
-            )
-            .padding(.horizontal, 6)
-
-            // 時間表示（任意）
-            HStack {
-                Text(player.timeString(player.currentTime))
-                    .font(.system(size: 11))
-                Spacer()
-                Text(player.timeString(player.duration))
-                    .font(.system(size: 11))
-            }
-            .padding(.horizontal, 6)
-
-            // シャッフル・リピート
+            // ⑤ ランダム・リピート
             HStack(spacing: 18) {
                 Button(action: { player.toggleShuffle() }) {
                     Image(systemName: player.isShuffle ? "shuffle.circle.fill" : "shuffle.circle")
@@ -101,12 +101,6 @@ struct ContentView: View {
                     .font(.system(size: 20))
                 }
             }
-
-            Divider()
-
-            Text("Loading: \(player.currentTitle)")
-                .font(.system(size: 13, weight: .medium))
-                .padding(.top, 2)
 
             Divider()
 
