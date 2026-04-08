@@ -10,11 +10,13 @@ import Combine
 
 struct ContentView: View {
     @EnvironmentObject var player: FolderPlayer
+    @State private var isDraggingSlider = false
+    @State private var dragTime: Double = 0
 
     var body: some View {
         VStack(spacing: 10) {
 
-            // フォルダ選択ボタン（さらに小さめ）
+            // フォルダ選択ボタン
             Button(action: {
                 player.selectFolder()
             }) {
@@ -41,6 +43,39 @@ struct ContentView: View {
                         .font(.system(size: 18))
                 }
             }
+
+            // ★★★ 再生位置スライダー ★★★
+            Slider(
+                value: Binding(
+                    get: {
+                        isDraggingSlider ? dragTime : player.currentTime
+                    },
+                    set: { newValue in
+                        dragTime = newValue
+                    }
+                ),
+                in: 0...max(player.duration, 1),
+                onEditingChanged: { editing in
+                    if editing {
+                        isDraggingSlider = true
+                        dragTime = player.currentTime
+                    } else {
+                        player.seek(to: dragTime)
+                        isDraggingSlider = false
+                    }
+                }
+            )
+            .padding(.horizontal, 6)
+
+            // 時間表示（任意）
+            HStack {
+                Text(player.timeString(player.currentTime))
+                    .font(.system(size: 11))
+                Spacer()
+                Text(player.timeString(player.duration))
+                    .font(.system(size: 11))
+            }
+            .padding(.horizontal, 6)
 
             // シャッフル・リピート
             HStack(spacing: 18) {
@@ -92,7 +127,6 @@ struct ContentView: View {
             }
         }
         .padding(10)
-        .frame(width: 320, height: 440)   // ← さらに小さくした最適サイズ
+        .frame(width: 320, height: 440)
     }
 }
-

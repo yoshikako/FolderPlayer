@@ -27,6 +27,12 @@ class FolderPlayer: NSObject, ObservableObject {
     @Published var isShuffle: Bool = false
     @Published var isPlaying: Bool = false
 
+    // ★ スライダー用
+    @Published var currentTime: Double = 0
+    @Published var duration: Double = 1
+
+    private var timer: Timer?
+
     enum RepeatMode { case none, one, all }
     @Published var repeatMode: RepeatMode = .none
 
@@ -35,10 +41,11 @@ class FolderPlayer: NSObject, ObservableObject {
 
     private var originalOrder: [URL] = []
 
-    // AVAudioEngine 版
+    // AVAudioEngine
     private let engine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
     private var audioFile: AVAudioFile?
+    private var seekStartOffset: Double = 0
 
     override init() {
         super.init()
@@ -83,16 +90,19 @@ class FolderPlayer: NSObject, ObservableObject {
         currentTitle = url.lastPathComponent
         onTitleChange?(currentTitle)
 
-        // 既存の再生を停止
         playerNode.stop()
+        timer?.invalidate()
 
-        // 非同期で FLAC を読み込み（高速）
         DispatchQueue.global().async {
             guard let file = try? AVAudioFile(forReading: url) else { return }
 
             DispatchQueue.main.async {
                 self.audioFile = file
+                self.duration = Double(file.length) / file.processingFormat.sampleRate
+                self.seekStartOffset = 0
+                self.currentTime = 0
                 self.startEnginePlayback()
+                self.startTimer()
             }
         }
     }
@@ -101,7 +111,14 @@ class FolderPlayer: NSObject, ObservableObject {
         guard let file = audioFile else { return }
 
         playerNode.stop()
-        playerNode.scheduleFile(file, at: nil)
+
+        // ★ 初回再生は 0 秒から
+        playerNode.scheduleSegment(
+            file,
+            startingFrame: 0,
+            frameCount: AVAudioFrameCount(file.length),
+            at: nil
+        )
 
         if !engine.isRunning {
             try? engine.start()
@@ -109,7 +126,9 @@ class FolderPlayer: NSObject, ObservableObject {
 
         playerNode.play()
         isPlaying = true
+    
     }
+
 
     func togglePlayPause() {
         if playerNode.isPlaying {
@@ -151,6 +170,90 @@ class FolderPlayer: NSObject, ObservableObject {
             currentIndex = newIndex
         }
     }
+
+    // ★★★★★ スライダー用：現在位置を更新するタイマー
+    private func startTimer() {
+        timer?.invalidate()
+
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+
+            Task { @MainActor in
+                guard let nodeTime = self.playerNode.lastRenderTime,
+                      let playerTime = self.playerNode.playerTime(forNodeTime: nodeTime) else { return }
+
+                let seconds = Double(playerTime.sampleTime) / playerTime.sampleRate + self.seekStartOffset
+                self.currentTime = seconds
+            }
+        }
+    }
+
+
+    // ★★★★★ スライダー用：シーク（早送り・巻き戻し）
+    func seek(to time: Double) {
+        guard let file = audioFile else { return }
+
+        let wasPlaying = playerNode.isPlaying
+        playerNode.stop()
+
+        seekStartOffset = time
+
+        let sampleRate = file.processingFormat.sampleRate
+        let frame = AVAudioFramePosition(time * sampleRate)
+
+        let remainingFrames = AVAudioFrameCount(file.length - frame)
+
+        playerNode.scheduleSegment(
+            file,
+            startingFrame: frame,
+            frameCount: remainingFrames,
+            at: nil
+        )
+
+        if wasPlaying {
+            playerNode.play()
+        }
+
+        currentTime = time
+        isPlaying = wasPlaying
+    }
+
+
+    // ★★★★★ 時間表示用
+    func timeString(_ sec: Double) -> String {
+        let m = Int(sec) / 60
+        let s = Int(sec) % 60
+        return String(format: "%d:%02d", m, s)
+    }
+
+    func toggleRepeatMode() {
+        switch repeatMode {
+        case .none:
+            repeatMode = .one
+        case .one:
+            repeatMode = .all
+        case .all:
+            repeatMode = .none
+        }
+    }
+
+    private func checkPlaybackEnd() {
+        guard audioFile != nil else { return }
+        
+        if currentTime >= duration - 0.1 {
+            switch repeatMode {
+            case .none:
+                next()
+            case .one:
+                seek(to: 0)
+            case .all:
+                if currentIndex == fileURLs.count - 1 {
+                    currentIndex = 0
+                } else {
+                    next()
+                }
+                playCurrent()
+            }
+        }
+    }
 }
-
-
