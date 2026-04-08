@@ -46,6 +46,8 @@ class FolderPlayer: NSObject, ObservableObject {
     private let playerNode = AVAudioPlayerNode()
     private var audioFile: AVAudioFile?
     private var seekStartOffset: Double = 0
+    private var lastPlaybackTime: Double = 0
+    private var hasHandledPlaybackEnd: Bool = false
 
     override init() {
         super.init()
@@ -92,6 +94,7 @@ class FolderPlayer: NSObject, ObservableObject {
 
         playerNode.stop()
         timer?.invalidate()
+        hasHandledPlaybackEnd = false
 
         DispatchQueue.global().async {
             guard let file = try? AVAudioFile(forReading: url) else { return }
@@ -113,10 +116,11 @@ class FolderPlayer: NSObject, ObservableObject {
         playerNode.stop()
 
         // ★ 初回再生は 0 秒から
+        let frameCount = AVAudioFrameCount(file.length)
         playerNode.scheduleSegment(
             file,
             startingFrame: 0,
-            frameCount: AVAudioFrameCount(file.length),
+            frameCount: frameCount,
             at: nil
         )
 
@@ -126,6 +130,8 @@ class FolderPlayer: NSObject, ObservableObject {
 
         playerNode.play()
         isPlaying = true
+        lastPlaybackTime = 0
+        hasHandledPlaybackEnd = false
     
     }
 
@@ -184,6 +190,13 @@ class FolderPlayer: NSObject, ObservableObject {
 
                 let seconds = Double(playerTime.sampleTime) / playerTime.sampleRate + self.seekStartOffset
                 self.currentTime = seconds
+                self.lastPlaybackTime = seconds
+                
+                // 再生終了検出（一度だけ実行）
+                if !self.hasHandledPlaybackEnd && self.isPlaying && seconds >= self.duration - 0.1 && self.duration > 1 {
+                    self.hasHandledPlaybackEnd = true
+                    self.handlePlaybackEnd()
+                }
             }
         }
     }
@@ -197,11 +210,18 @@ class FolderPlayer: NSObject, ObservableObject {
         playerNode.stop()
 
         seekStartOffset = time
+        lastPlaybackTime = time
+        hasHandledPlaybackEnd = false
 
         let sampleRate = file.processingFormat.sampleRate
         let frame = AVAudioFramePosition(time * sampleRate)
-
         let remainingFrames = AVAudioFrameCount(file.length - frame)
+
+        guard remainingFrames > 0 else {
+            currentTime = time
+            isPlaying = false
+            return
+        }
 
         playerNode.scheduleSegment(
             file,
@@ -237,23 +257,28 @@ class FolderPlayer: NSObject, ObservableObject {
         }
     }
 
-    private func checkPlaybackEnd() {
+    private func playbackEnded() {
         guard audioFile != nil else { return }
-        
-        if currentTime >= duration - 0.1 {
-            switch repeatMode {
-            case .none:
-                next()
-            case .one:
-                seek(to: 0)
-            case .all:
-                if currentIndex == fileURLs.count - 1 {
-                    currentIndex = 0
-                } else {
-                    next()
-                }
+
+        switch repeatMode {
+        case .none:
+            next()
+        case .one:
+            seek(to: 0)
+            if playerNode.isPlaying {
+                playerNode.play()
+            }
+        case .all:
+            if currentIndex == fileURLs.count - 1 {
+                currentIndex = 0
                 playCurrent()
+            } else {
+                next()
             }
         }
+    }
+
+    private func handlePlaybackEnd() {
+        playbackEnded()
     }
 }
