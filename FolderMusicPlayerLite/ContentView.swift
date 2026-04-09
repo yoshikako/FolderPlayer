@@ -221,7 +221,7 @@ struct ContentView: View {
                                             }
                                         }
                                     }
-                                    .frame(maxHeight: .infinity) // ← これ追加！Listだけ広げる
+                                    .frame(maxHeight: .infinity) // ← これ追加①-2！Listだけ広げる
                                     .scrollContentBackground(.hidden)
 //                                    .background(Color.blue.opacity(0.05))   // ← 全体背景
                                   
@@ -229,8 +229,7 @@ struct ContentView: View {
                                 }
                                 .padding(10)
 //                               .frame(width: 320, height: 440)
-                                .frame(width: 320, height: 520)
-//                                .background(Color.blue.opacity(0.05))
+                                .frame(width: 320, height: 480)// ← これ追加①！//                                .background(Color.blue.opacity(0.05))
                                 .background(mainBackground)
         
        
