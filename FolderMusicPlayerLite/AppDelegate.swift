@@ -34,5 +34,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window?.makeKeyAndOrderFront(nil)
         }
     }
+    class AppDelegate: NSObject, NSApplicationDelegate {
+        var statusItem: NSStatusItem!
+        var window: NSWindow?
+        
+        func applicationDidFinishLaunching(_ notification: Notification) {
+            // ここはメニュー作成やウィンドウ作成を書く場所
+        }
+
+        // バージョン情報を表示する処理
+        @objc func showVersionInfo() {
+            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+            let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+
+            let alert = NSAlert()
+            alert.messageText = "FolderPlayer バージョン情報"
+            alert.informativeText = "Version: \(version)\nBuild: \(build)"
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+        }
+    }
+
 
 }

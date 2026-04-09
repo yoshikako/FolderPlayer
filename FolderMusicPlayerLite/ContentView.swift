@@ -232,40 +232,14 @@ struct ContentView: View {
                                 .frame(width: 320, height: 480)// ← これ追加①！//                                .background(Color.blue.opacity(0.05))
                                 .background(mainBackground)
         
-       
+        
 
-//            ZStack {
-//                RoundedRectangle(cornerRadius: 12)
-//                    .fill(Color.blue.opacity(0.08))
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 12)
-//                            .stroke(Color.blue.opacity(0.12), lineWidth: 1)
-//                    )
-//
-//                List {
-//                    ForEach(Array(player.fileURLs.enumerated()), id: \.element) { index, url in
-//                        HStack {
-//                            Text(url.lastPathComponent)
-//                                .font(.system(size: 12))
-//                                .foregroundColor(Color.blue.opacity(0.30))
-//                            Spacer()
-//                        }
-//                        .listRowBackground(Color.clear)
-//                        .contentShape(Rectangle())
-//                        .onTapGesture {
-//                            player.jump(to: index)
-//                        }
-//                    }
-//                }
-//                .scrollContentBackground(.hidden)
-//                .background(Color.clear)
-//            }
-//            .frame(width: 300, height: 260)   // ← ★ここで横幅を固定（重要）
-//            .padding(.horizontal, 10)         // ← 全体幅320の中でちょうど良く収まる
+
 
    
     }
     
+          
                     
 }
 
