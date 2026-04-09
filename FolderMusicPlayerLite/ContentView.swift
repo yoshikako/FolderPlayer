@@ -78,16 +78,17 @@ struct ContentView: View {
                         RoundedRectangle(cornerRadius: 6)
                             .stroke(borderColor, lineWidth: 1)
                     )
-                    .frame(height: 30)                   // ← 少し高さも上品に
-                    .padding(.horizontal, 2)             // ← 枠そのものを広げる
                 
                 Text(player.currentTitle)
 //                    .font(.system(size: 15, weight: .semibold))
                     .font(.system(size: 15, weight: .regular))   // ← 細くしたい
-                    .lineLimit(1)
+                    .lineLimit(nil)
                     .padding(.horizontal, 10)            // ← 内側の余白を広げる（枠幅UP）
+                    .padding(.vertical, 8)               // ← 縦方向の余白を追加
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+//            .frame(maxHeight: .infinity, alignment: .top)
+            .frame(maxHeight: 55)
             .padding(.horizontal, 6)
             // ③ スライダー（細く）
             VStack(spacing: 2) {
@@ -220,13 +221,15 @@ struct ContentView: View {
                                             }
                                         }
                                     }
+                                    .frame(maxHeight: .infinity) // ← これ追加！Listだけ広げる
                                     .scrollContentBackground(.hidden)
 //                                    .background(Color.blue.opacity(0.05))   // ← 全体背景
                                   
 
                                 }
                                 .padding(10)
-                                .frame(width: 320, height: 440)
+//                               .frame(width: 320, height: 440)
+                                .frame(width: 320, height: 520)
 //                                .background(Color.blue.opacity(0.05))
                                 .background(mainBackground)
         
