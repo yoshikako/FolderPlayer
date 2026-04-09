@@ -57,6 +57,7 @@ struct ContentView: View {
                 )
                 .controlSize(.mini)        // ← 細くする
                 .tint(.gray.opacity(0.8))  // ← 色も控えめに
+                .scaleEffect(y: 0.6, anchor: .center)   // ← ★ これを追加すると細くなる
                 .padding(.horizontal, 6)
                 
                 HStack {
