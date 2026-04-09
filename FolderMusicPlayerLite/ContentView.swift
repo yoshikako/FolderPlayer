@@ -12,6 +12,10 @@ struct ContentView: View {
     @EnvironmentObject var player: FolderPlayer
     @Environment(\.colorScheme) private var colorScheme
     
+    private var titleHighlightBackground: Color {
+        colorScheme == .dark ? Color.blue.opacity(0.14) : Color.blue.opacity(0.08)
+    }
+    
     private var mainBackground: Color {
         if colorScheme == .dark {
             #if os(iOS) || targetEnvironment(macCatalyst)
@@ -69,7 +73,7 @@ struct ContentView: View {
             // ② 曲名を枠（窓）付きで表示（背景色＋幅広め）
             ZStack {
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(panelBackground)      // ← ダーク/ライト両対応の背景色
+                    .fill(titleHighlightBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
                             .stroke(borderColor, lineWidth: 1)
@@ -210,7 +214,6 @@ struct ContentView: View {
                                                 Spacer()
                                             }
                                             .padding(.vertical, 4)
-                                            .listRowBackground(index == player.currentIndex ? Color.blue.opacity(colorScheme == .dark ? 0.18 : 0.08) : Color.clear)
                                             .contentShape(Rectangle())
                                             .onTapGesture {
                                                 player.jump(to: index)
