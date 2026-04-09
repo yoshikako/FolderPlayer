@@ -1,8 +1,48 @@
 import SwiftUI
 import Combine
 
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
+
 struct ContentView: View {
     @EnvironmentObject var player: FolderPlayer
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var mainBackground: Color {
+        if colorScheme == .dark {
+            #if os(iOS) || targetEnvironment(macCatalyst)
+            return Color(.systemBackground)
+            #else
+            return Color(NSColor.windowBackgroundColor)
+            #endif
+        } else {
+            return Color(red: 0.97, green: 0.96, blue: 0.93)
+        }
+    }
+    
+    private var panelBackground: Color {
+        if colorScheme == .dark {
+            #if os(iOS) || targetEnvironment(macCatalyst)
+            return Color(.secondarySystemBackground)
+            #else
+            return Color(NSColor.windowBackgroundColor).opacity(0.95)
+            #endif
+        } else {
+            return Color(white: 1.0, opacity: 0.95)
+        }
+    }
+    
+    private var borderColor: Color {
+        if colorScheme == .dark {
+            return Color.white.opacity(0.28)
+        } else {
+            return Color.gray.opacity(0.35)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 10) {
@@ -19,7 +59,7 @@ struct ContentView: View {
                         .frame(width: 30, height: 30)
                         .background(
                             Circle()
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .stroke(borderColor, lineWidth: 1)
                         )
                 }
                 .buttonStyle(.plain)
@@ -29,11 +69,10 @@ struct ContentView: View {
             // ② 曲名を枠（窓）付きで表示（背景色＋幅広め）
             ZStack {
                 RoundedRectangle(cornerRadius: 6)
-//                    .fill(Color.gray.opacity(0.08))      // ← 薄い背景色
-                    .fill(Color.blue.opacity(0.07))      // ← 薄い背景色
+                    .fill(panelBackground)      // ← ダーク/ライト両対応の背景色
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                            .stroke(borderColor, lineWidth: 1)
                     )
                     .frame(height: 30)                   // ← 少し高さも上品に
                     .padding(.horizontal, 2)             // ← 枠そのものを広げる
@@ -57,7 +96,9 @@ struct ContentView: View {
                 )
                 .controlSize(.mini)        // ← 細くする
                 .tint(.gray.opacity(0.8))  // ← 色も控えめに
-                .scaleEffect(y: 0.6, anchor: .center)   // ← ★ これを追加すると細くなる
+//              .scaleEffect(y: 0.6, anchor: .center)   // ← ★ これを追加すると細くなる
+                 .scaleEffect(x: 1.0, y: 0.55, anchor: .center)   // ← ★ つまみも細く小さく見える
+
                 .padding(.horizontal, 6)
                 
                 HStack {
@@ -81,7 +122,7 @@ struct ContentView: View {
                         .frame(width: 32, height: 32)
                         .background(
                             Circle()
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .stroke(borderColor, lineWidth: 1)
                         )
                 }
                 .buttonStyle(.plain)
@@ -94,7 +135,7 @@ struct ContentView: View {
                         .frame(width: 38, height: 38)
                         .background(
                             Circle()
-                                .stroke(Color.gray.opacity(0.35), lineWidth: 1.2)
+                                .stroke(borderColor, lineWidth: 1.2)
                         )
                 }
                 .buttonStyle(.plain)
@@ -107,7 +148,7 @@ struct ContentView: View {
                         .frame(width: 32, height: 32)
                         .background(
                             Circle()
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .stroke(borderColor, lineWidth: 1)
                         )
                 }
                 .buttonStyle(.plain)
@@ -125,7 +166,7 @@ struct ContentView: View {
                         .frame(width: 30, height: 30)
                         .background(
                             Circle()
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .stroke(borderColor, lineWidth: 1)
                         )
                 }
                 .buttonStyle(.plain)
@@ -150,7 +191,7 @@ struct ContentView: View {
                     .frame(width: 30, height: 30)
                     .background(
                         Circle()
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            .stroke(borderColor, lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)
@@ -168,9 +209,8 @@ struct ContentView: View {
                                                     .foregroundColor(index == player.currentIndex ? .blue : .primary)
                                                 Spacer()
                                             }
-                                      // .listRowBackground(Color.blue.opacity(0.08))  // ← ★ここがバックカラー
-//                               .listRowBackground(Color.blue.opacity(0.05))  // ← ★ここがバックカラー
-//                                          .background(Color.blue.opacity(0.05))
+                                            .padding(.vertical, 4)
+                                            .listRowBackground(index == player.currentIndex ? Color.blue.opacity(colorScheme == .dark ? 0.18 : 0.08) : Color.clear)
                                             .contentShape(Rectangle())
                                             .onTapGesture {
                                                 player.jump(to: index)
@@ -185,7 +225,10 @@ struct ContentView: View {
                                 .padding(10)
                                 .frame(width: 320, height: 440)
 //                                .background(Color.blue.opacity(0.05))
-                                .background(Color(red: 0.97, green: 0.96, blue: 0.93))
+                                .background(mainBackground)
+        
+       
+
 //            ZStack {
 //                RoundedRectangle(cornerRadius: 12)
 //                    .fill(Color.blue.opacity(0.08))
@@ -215,8 +258,10 @@ struct ContentView: View {
 //            .frame(width: 300, height: 260)   // ← ★ここで横幅を固定（重要）
 //            .padding(.horizontal, 10)         // ← 全体幅320の中でちょうど良く収まる
 
-        }
-            
-        }
+   
+    }
+    
+                    
+}
 
 
