@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		505120BF2F89BBA1001551E9 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 505120BE2F89BBA1001551E9 /* InfoPlist.xcstrings */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5001258C2F845F90002471B6 /* FolderMusicPlayerLite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderMusicPlayerLite.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		505120BE2F89BBA1001551E9 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		500125832F845F90002471B6 = {
 			isa = PBXGroup;
 			children = (
+				505120BE2F89BBA1001551E9 /* InfoPlist.xcstrings */,
 				5001258E2F845F90002471B6 /* FolderMusicPlayerLite */,
 				5001258D2F845F90002471B6 /* Products */,
 			);
@@ -91,6 +97,7 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
 			);
 			mainGroup = 500125832F845F90002471B6;
 			minimizedProjectReferenceProxies = 1;
@@ -109,6 +116,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				505120BF2F89BBA1001551E9 /* InfoPlist.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -185,6 +193,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -242,6 +251,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
