@@ -1,6 +1,17 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "CFBundleDisplayName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FolderPlayer"
+          }
+        }
+      }
+    },
     "CFBundleName" : {
       "comment" : "Bundle name",
       "extractionState" : "extracted_with_value",
@@ -8,7 +19,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "FolderMusicPlayerLite"
+            "value" : "FolderPlayer"
           }
         }
       }

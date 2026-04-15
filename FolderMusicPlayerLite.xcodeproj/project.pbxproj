@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5001258C2F845F90002471B6 /* FolderMusicPlayerLite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderMusicPlayerLite.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5001258C2F845F90002471B6 /* FolderPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		505120BE2F89BBA1001551E9 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -46,7 +46,7 @@
 		5001258D2F845F90002471B6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5001258C2F845F90002471B6 /* FolderMusicPlayerLite.app */,
+				5001258C2F845F90002471B6 /* FolderPlayer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,7 +73,7 @@
 			packageProductDependencies = (
 			);
 			productName = FolderMusicPlayerLite;
-			productReference = 5001258C2F845F90002471B6 /* FolderMusicPlayerLite.app */;
+			productReference = 5001258C2F845F90002471B6 /* FolderPlayer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -277,7 +277,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoshikako.FolderMusicPlayerLite;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = FolderPlayer;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -310,7 +310,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoshikako.FolderMusicPlayerLite;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = FolderPlayer;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

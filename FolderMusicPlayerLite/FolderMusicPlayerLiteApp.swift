@@ -6,16 +6,23 @@
 //
 //エントリーポイント
 import SwiftUI
-import SwiftData
 
 @main
 struct FolderMusicPlayerLiteApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        Settings {
+
+        // メインウィンドウは AppDelegate が管理するため空でOK
+        WindowGroup {
             EmptyView()
+        }
+
+        // Settings メニューは必ず中身を持たせる
+        Settings {
+            SettingsView()
         }
     }
 }
+
 
