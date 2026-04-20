@@ -17,6 +17,27 @@ import SwiftUI
 //        }
 //    }
 //}
+//@main
+//struct FolderPlayerApp: App {
+//    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+//
+//    var body: some Scene {
+//        WindowGroup {
+//            ContentView()
+//                .environmentObject(FolderPlayer.shared)
+//        }
+//        
+//        .windowResizability(.contentSize)
+//        .defaultSize(width: 420, height: 520)
+//        
+//
+//        Settings {
+//            SettingsView()
+//        }
+//    }
+//}
+
+
 @main
 struct FolderPlayerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -26,17 +47,14 @@ struct FolderPlayerApp: App {
             ContentView()
                 .environmentObject(FolderPlayer.shared)
         }
-        
-        .windowResizability(.contentSize)
         .defaultSize(width: 420, height: 520)
-        
+        .windowResizability(.contentSize)
 
         Settings {
             SettingsView()
         }
     }
 }
-
 
 
 

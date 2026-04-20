@@ -181,17 +181,32 @@
 //        alert.runModal()
 //    }
 //}
+
+//import Cocoa
+//import SwiftUI
+//
+//class AppDelegate: NSObject, NSApplicationDelegate {
+//
+//    func applicationDidFinishLaunching(_ notification: Notification) {
+//        // 何もしない（SwiftUIに任せる）
+//    }
+//
+//    // ウィンドウ閉じたらアプリ終了（審査対策）
+//    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+//        return true
+//    }
+//}
+
 import Cocoa
 import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        // 何もしない（SwiftUIに任せる）
-    }
-
-    // ウィンドウ閉じたらアプリ終了（審査対策）
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+    // Dockクリックでウィンドウ復活
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        for window in NSApp.windows {
+            window.makeKeyAndOrderFront(nil)
+        }
         return true
     }
 }
