@@ -7,22 +7,40 @@
 //エントリーポイント
 import SwiftUI
 
+//@main
+//struct FolderMusicPlayerLiteApp: App {
+//    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+//
+//    var body: some Scene {
+//        Settings {
+//            SettingsView()
+//        }
+//    }
+//}
 @main
-struct FolderMusicPlayerLiteApp: App {
+struct FolderPlayerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-
-        // メインウィンドウは AppDelegate が管理するため空でOK
         WindowGroup {
-            EmptyView()
+            ContentView()
+                .environmentObject(FolderPlayer.shared)
         }
+        
+        .windowResizability(.contentSize)
+        .defaultSize(width: 420, height: 520)
+        
 
-        // Settings メニューは必ず中身を持たせる
         Settings {
             SettingsView()
         }
     }
 }
+
+
+
+
+
+
 
 
