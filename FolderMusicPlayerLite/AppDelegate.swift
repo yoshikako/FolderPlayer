@@ -209,4 +209,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         return true
     }
+
+    // 👇 これを追加（今回の審査対応）
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
+    }
 }
+
+
