@@ -11,9 +11,10 @@ import SwiftUI
 struct SettingsView: View {
     var body: some View {
         Form {
-            Text("FolderPlayer Settings")
+            Text("FolderPlayer")
+            Text("Version １.0")
         }
-        .padding()
+//        .padding()
         .frame(width: 300, height: 200)
     }
 }
