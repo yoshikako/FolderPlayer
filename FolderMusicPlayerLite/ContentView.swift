@@ -1,4 +1,7 @@
 import SwiftUI
+
+
+import SwiftUI
 import Combine
 
 #if canImport(UIKit)
@@ -10,6 +13,7 @@ import AppKit
 
 struct ContentView: View {
     @EnvironmentObject var player: FolderPlayer
+    @EnvironmentObject var adRemoval: AdRemovalManager
     @Environment(\.colorScheme) private var colorScheme
     
     private var titleHighlightBackground: Color {
@@ -49,7 +53,8 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 0) {
+            VStack(spacing: 10) {
             
             // ① Folder ボタン（右上・丸背景・上品デザイン）
             HStack {
@@ -231,16 +236,16 @@ struct ContentView: View {
 //                               .frame(width: 320, height: 440)
                                 .frame(width: 320, height: 480)// ← これ追加①！//                                .background(Color.blue.opacity(0.05))
                                 .background(mainBackground)
-        
-        
-
-
-
-   
+            }
+            if !adRemoval.isAdsRemoved {
+                AdMobBannerView()
+                    .frame(height: 50)
+            }
+        }
     }
-    
-          
+
+
                     
-}
+
 
 

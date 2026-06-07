@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct FolderPlayerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var adRemoval = AdRemovalManager.shared
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(FolderPlayer.shared)
+                .environmentObject(adRemoval)
         }
         .defaultSize(width: 420, height: 520)
         .windowResizability(.contentSize)
@@ -22,8 +24,9 @@ struct FolderPlayerApp: App {
         Settings {
             SettingsView()
                 .environmentObject(FolderPlayer.shared)
-                .frame(width: 300, height: 200)
-               }
+                .environmentObject(adRemoval)
+                .frame(width: 300, height: 240)
+        }
     }
 }
 
