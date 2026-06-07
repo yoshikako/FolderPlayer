@@ -1,13 +1,15 @@
 import Foundation
 import StoreKit
 import SwiftUI
+import Combine
 
 @MainActor
 class AdRemovalManager: ObservableObject {
     static let shared = AdRemovalManager()
 
-    @Published var isAdsRemoved: Bool = UserDefaults.standard.bool(forKey: Self.userDefaultsKey)
+    @Published var isAdsRemoved: Bool = UserDefaults.standard.bool(forKey: AdRemovalManager.userDefaultsKey)
     @Published var isLoading: Bool = false
+    @Published var isProductLoading: Bool = false
     @Published var errorMessage: String?
     @Published var product: Product?
 
@@ -22,6 +24,9 @@ class AdRemovalManager: ObservableObject {
     }
 
     func loadProduct() async {
+        isProductLoading = true
+        defer { isProductLoading = false }
+
         do {
             let products = try await Product.products(for: [productId])
             self.product = products.first
@@ -35,7 +40,11 @@ class AdRemovalManager: ObservableObject {
 
     func purchaseRemoveAds() async {
         guard let product = product else {
-            errorMessage = "広告削除商品が利用できません。"
+            if isProductLoading {
+                errorMessage = "商品情報を読み込み中です。しばらく待ってから再度お試しください。"
+            } else {
+                errorMessage = "広告削除商品が利用できません。App Store Connect の product id を確認してください。"
+            }
             return
         }
 
@@ -50,7 +59,7 @@ class AdRemovalManager: ObservableObject {
                 await transaction.finish()
                 applyPurchase()
             case .pending:
-                errorMessage = "購入は保留中です。" 
+                errorMessage = "購入は保留中です。"
             case .userCancelled:
                 break
             @unknown default:
