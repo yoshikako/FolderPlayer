@@ -48,6 +48,7 @@ class FolderPlayer: NSObject, ObservableObject {
     private var seekStartOffset: Double = 0
     private var lastPlaybackTime: Double = 0
     private var hasHandledPlaybackEnd: Bool = false
+    private var securityScopedFolderURL: URL?
 
     override init() {
         super.init()
@@ -71,6 +72,26 @@ class FolderPlayer: NSObject, ObservableObject {
     }
 
     func loadFiles(in folderURL: URL) {
+        let didStartAccessing = folderURL.startAccessingSecurityScopedResource()
+
+        do {
+            guard try folderURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == true else {
+                if didStartAccessing {
+                    folderURL.stopAccessingSecurityScopedResource()
+                }
+                return
+            }
+        } catch {
+            if didStartAccessing {
+                folderURL.stopAccessingSecurityScopedResource()
+            }
+            NSLog("Failed to inspect folder: %@", error.localizedDescription)
+            return
+        }
+
+        securityScopedFolderURL?.stopAccessingSecurityScopedResource()
+        securityScopedFolderURL = didStartAccessing ? folderURL : nil
+
         let fm = FileManager.default
         let exts = ["mp3", "m4a", "wav", "aac", "flac"]
 

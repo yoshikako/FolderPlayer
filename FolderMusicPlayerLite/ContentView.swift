@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import UniformTypeIdentifiers
 
 #if canImport(UIKit)
 import UIKit
@@ -11,6 +12,7 @@ import AppKit
 struct ContentView: View {
     @EnvironmentObject var player: FolderPlayer
     @Environment(\.colorScheme) private var colorScheme
+    @State private var isDropTargeted = false
     
     private var titleHighlightBackground: Color {
         colorScheme == .dark ? Color.blue.opacity(0.14) : Color.blue.opacity(0.08)
@@ -231,12 +233,59 @@ struct ContentView: View {
 //                               .frame(width: 320, height: 440)
                                 .frame(width: 320, height: 480)// ← これ追加①！//                                .background(Color.blue.opacity(0.05))
                                 .background(mainBackground)
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.accentColor, lineWidth: 3)
+                                        .opacity(isDropTargeted ? 1 : 0)
+                                        .padding(3)
+                                        .allowsHitTesting(false)
+                                }
+                                .onDrop(
+                                    of: [UTType.fileURL.identifier],
+                                    isTargeted: $isDropTargeted,
+                                    perform: handleFolderDrop
+                                )
         
         
 
 
 
    
+    }
+
+    private func handleFolderDrop(_ providers: [NSItemProvider]) -> Bool {
+        guard let provider = providers.first(where: {
+            $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier)
+        }) else {
+            return false
+        }
+
+        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
+            if let error {
+                NSLog("Failed to load dropped folder URL: %@", error.localizedDescription)
+                return
+            }
+
+            let url: URL?
+            if let droppedURL = item as? URL {
+                url = droppedURL
+            } else if let droppedURL = item as? NSURL {
+                url = droppedURL as URL
+            } else if let data = item as? Data {
+                url = URL(dataRepresentation: data, relativeTo: nil)
+            } else {
+                url = nil
+            }
+
+            guard let url, url.isFileURL else {
+                return
+            }
+
+            Task { @MainActor in
+                player.loadFiles(in: url)
+            }
+        }
+        return true
     }
     
           
