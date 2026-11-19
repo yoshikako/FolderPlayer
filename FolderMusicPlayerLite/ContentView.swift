@@ -240,8 +240,13 @@ struct ContentView: View {
                                         .padding(3)
                                         .allowsHitTesting(false)
                                 }
+                                .contentShape(Rectangle())
                                 .onDrop(
-                                    of: [UTType.fileURL.identifier],
+                                    of: [
+                                        UTType.fileURL.identifier,
+                                        UTType.url.identifier,
+                                        UTType.folder.identifier
+                                    ],
                                     isTargeted: $isDropTargeted,
                                     perform: handleFolderDrop
                                 )
@@ -254,13 +259,21 @@ struct ContentView: View {
     }
 
     private func handleFolderDrop(_ providers: [NSItemProvider]) -> Bool {
-        guard let provider = providers.first(where: {
-            $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier)
-        }) else {
+        let acceptedTypes = [
+            UTType.fileURL.identifier,
+            UTType.url.identifier,
+            UTType.folder.identifier
+        ]
+        guard let providerAndType = providers.lazy.compactMap({ provider in
+            acceptedTypes.first(where: {
+                provider.hasItemConformingToTypeIdentifier($0)
+            }).map { (provider, $0) }
+        }).first else {
             return false
         }
+        let (provider, typeIdentifier) = providerAndType
 
-        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
+        provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
             if let error {
                 NSLog("Failed to load dropped folder URL: %@", error.localizedDescription)
                 return
@@ -278,6 +291,7 @@ struct ContentView: View {
             }
 
             guard let url, url.isFileURL else {
+                NSLog("Dropped item did not provide a file URL")
                 return
             }
 

@@ -37,6 +37,7 @@ class FolderPlayer: NSObject, ObservableObject {
     @Published var repeatMode: RepeatMode = .none
 
     var recentFolders: [URL] = []
+    private(set) var currentFolderURL: URL?
     var onTitleChange: ((String) -> Void)?
 
     private var originalOrder: [URL] = []
@@ -61,13 +62,10 @@ class FolderPlayer: NSObject, ObservableObject {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
+        panel.directoryURL = currentFolderURL
 
         if panel.runModal() == .OK, let url = panel.url {
             loadFiles(in: url)
-
-            recentFolders.removeAll(where: { $0 == url })
-            recentFolders.insert(url, at: 0)
-            if recentFolders.count > 3 { recentFolders.removeLast() }
         }
     }
 
@@ -91,6 +89,10 @@ class FolderPlayer: NSObject, ObservableObject {
 
         securityScopedFolderURL?.stopAccessingSecurityScopedResource()
         securityScopedFolderURL = didStartAccessing ? folderURL : nil
+        currentFolderURL = folderURL
+        recentFolders.removeAll(where: { $0.standardizedFileURL == folderURL.standardizedFileURL })
+        recentFolders.insert(folderURL, at: 0)
+        if recentFolders.count > 3 { recentFolders.removeLast() }
 
         let fm = FileManager.default
         let exts = ["mp3", "m4a", "wav", "aac", "flac"]
