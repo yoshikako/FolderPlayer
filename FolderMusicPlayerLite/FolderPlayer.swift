@@ -30,8 +30,12 @@ class FolderPlayer: NSObject, ObservableObject {
     // ★ スライダー用
     @Published var currentTime: Double = 0
     @Published var duration: Double = 1
+    @Published private(set) var volume: Float = 1
+    @Published private(set) var isMuted = false
 
     private var timer: Timer?
+    private var volumeBeforeMute: Float = 1
+    private let volumeStep: Float = 0.1
 
     enum RepeatMode { case none, one, all }
     @Published var repeatMode: RepeatMode = .none
@@ -170,13 +174,38 @@ class FolderPlayer: NSObject, ObservableObject {
     }
 
     func next() {
+        guard !fileURLs.isEmpty else { return }
         currentIndex = (currentIndex + 1) % fileURLs.count
         playCurrent()
     }
 
     func previous() {
+        guard !fileURLs.isEmpty else { return }
         currentIndex = (currentIndex - 1 + fileURLs.count) % fileURLs.count
         playCurrent()
+    }
+
+    func toggleMute() {
+        if isMuted {
+            setVolume(max(volumeBeforeMute, volumeStep))
+        } else {
+            volumeBeforeMute = volume
+            setVolume(0)
+        }
+    }
+
+    func adjustVolume(by amount: Float) {
+        setVolume(volume + amount)
+    }
+
+    private func setVolume(_ newVolume: Float) {
+        let clampedVolume = min(max(newVolume, 0), 1)
+        volume = clampedVolume
+        isMuted = clampedVolume == 0
+        if !isMuted {
+            volumeBeforeMute = clampedVolume
+        }
+        engine.mainMixerNode.outputVolume = clampedVolume
     }
 
     func jump(to index: Int) {
