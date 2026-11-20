@@ -44,6 +44,11 @@ class FolderPlayer: NSObject, ObservableObject {
     private(set) var currentFolderURL: URL?
     var onTitleChange: ((String) -> Void)?
 
+    var currentFileURL: URL? {
+        guard fileURLs.indices.contains(currentIndex) else { return nil }
+        return fileURLs[currentIndex]
+    }
+
     private var originalOrder: [URL] = []
 
     // AVAudioEngine
@@ -211,6 +216,11 @@ class FolderPlayer: NSObject, ObservableObject {
     func jump(to index: Int) {
         currentIndex = index
         playCurrent()
+    }
+
+    func showCurrentTrackInFinder() {
+        guard let currentFileURL else { return }
+        NSWorkspace.shared.activateFileViewerSelecting([currentFileURL])
     }
 
     func toggleShuffle() {

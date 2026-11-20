@@ -89,6 +89,13 @@ struct ContentView: View {
                     .padding(.vertical, 8)               // ← 縦方向の余白を追加
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .contentShape(Rectangle())
+            .contextMenu {
+                Button("Finderで表示") {
+                    player.showCurrentTrackInFinder()
+                }
+                .disabled(player.currentFileURL == nil)
+            }
 //            .frame(maxHeight: .infinity, alignment: .top)
             .frame(maxHeight: 55)
             .padding(.horizontal, 6)
