@@ -200,7 +200,24 @@
 import Cocoa
 import SwiftUI
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
+    private var keyEventMonitor: Any?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        keyEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, self.handleKeyboardShortcut(event) else {
+                return event
+            }
+            return nil
+        }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if let keyEventMonitor {
+            NSEvent.removeMonitor(keyEventMonitor)
+        }
+    }
 
     // Dockクリックでウィンドウ復活
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -212,6 +229,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // 👇 これを追加（今回の審査対応）
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
+    }
+
+    private func handleKeyboardShortcut(_ event: NSEvent) -> Bool {
+        let modifiers = event.modifierFlags.intersection([.command, .option, .control, .shift])
+        let player = FolderPlayer.shared
+
+        if modifiers == .command {
+            switch event.keyCode {
+            case 123:
+                player.previous()
+            case 124:
+                player.next()
+            case 125:
+                player.adjustVolume(by: -0.1)
+            case 126:
+                player.adjustVolume(by: 0.1)
+            default:
+                return false
+            }
+            return true
+        }
+
+        guard modifiers.isEmpty else { return false }
+
+        switch event.keyCode {
+        case 49:
+            player.togglePlayPause()
+        case 98:
+            player.previous()
+        case 100:
+            player.togglePlayPause()
+        case 101:
+            player.next()
+        case 109:
+            player.toggleMute()
+        case 103:
+            player.adjustVolume(by: -0.1)
+        case 111:
+            player.adjustVolume(by: 0.1)
+        default:
+            return false
+        }
         return true
     }
 }
