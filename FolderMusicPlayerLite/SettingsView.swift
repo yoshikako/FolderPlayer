@@ -9,10 +9,14 @@
 import SwiftUI
 
 struct SettingsView: View {
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    }
+
     var body: some View {
         Form {
             Text("FolderPlayer")
-            Text("Version １.0")
+            Text("Version \(appVersion)")
         }
 //        .padding()
         .frame(width: 300, height: 200)

@@ -91,7 +91,7 @@ struct ContentView: View {
             }
             .contentShape(Rectangle())
             .contextMenu {
-                Button("Finderで表示") {
+                Button("Finder") {
                     player.showCurrentTrackInFinder()
                 }
                 .disabled(player.currentFileURL == nil)
